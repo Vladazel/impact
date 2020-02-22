@@ -1,8 +1,9 @@
 !
-! Contient deux fonctions :
+! Implémente les méthodes de dérivation
 !
-! deriv : dérivée première dy/dx
-! deriv2 : dérivée seconde d2y/dx2
+! Contient deux fonctions :
+!     - deriv : dérivée première dy/dx
+!     - deriv2 : dérivée seconde d2y/dx2
 !
 
 function deriv(dx, yref, yplus)

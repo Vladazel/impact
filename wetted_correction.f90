@@ -1,22 +1,5 @@
 !
 ! Calcul de la correction mouillée selon le modèle de Wagner
-! correction : calcul de la correction selon le mouvement
-! y_commande : commande le haut du ressort
-!
-!  
-!      ____
-!      |  |<--- point commandé par y_commande
-!      |__|
-!       <
-!        >      ressort raideur k
-!       <
-!     ___>__
-!     \    /
-!      \  /     masse M
-!       \/
-!
-! ------------  surface libre
-!
 !
 
 

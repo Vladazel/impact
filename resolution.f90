@@ -1,10 +1,9 @@
 !
-! resolution.f90
-!
-! Distributed under terms of the MIT license.
+! Programme principale pour la résolution du mouvement
 !
 
 program Resolution_equadiff
+    ! Résout le problème aux dérivées partielles
     implicit none
     real(kind=8), parameter :: PI = 4*atan(1.d0)
     real(kind=8) :: M, k, U, beta, rayon
@@ -61,6 +60,7 @@ program Resolution_equadiff
 end program Resolution_equadiff
 
 subroutine rk4(dt, tn, wn, wpn, M, k, param_geom, param_com)
+    ! Implémentation de Runge-Kutta d'ordre 4
     implicit none
     real(kind=8), intent(in)  :: dt
     real(kind=8), dimension(3), intent(out) :: tn
@@ -85,3 +85,17 @@ subroutine rk4(dt, tn, wn, wpn, M, k, param_geom, param_com)
     tn(2) = tn(3)
     tn(3) = tn(3) + dt
 end subroutine rk4
+
+function y_commande(t, list_param)
+    ! Définit la loi de commande
+    implicit none
+    !1ere valeur de list_param indique le type de loi de commande
+    !0 pour vitesse constante
+    real(kind=8), intent(in) :: t
+    real(kind=8), dimension(2), intent(in) :: list_param
+    real(kind=8) :: y_commande
+
+    if(list_param(1) == 0) then
+        y_commande = -list_param(2) * t !vitesse constante
+    end if
+end function y_commande 

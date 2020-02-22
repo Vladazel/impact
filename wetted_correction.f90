@@ -25,17 +25,3 @@ function correction(t, w, list_param_c, list_param_y)
 
     end if
 end function correction
-
-
-function y_commande(t, list_param)
-    implicit none
-    !1ere valeur de list_param indique le type de loi de commande
-    !0 pour vitesse constante
-    real(kind=8), intent(in) :: t
-    real(kind=8), dimension(2), intent(in) :: list_param
-    real(kind=8) :: y_commande
-
-    if(list_param(1) == 0) then
-        y_commande = -list_param(2) * t !vitesse constante
-    end if
-end function y_commande 

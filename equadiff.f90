@@ -31,10 +31,17 @@ function f_equa(t, w, wp, M, k, param_geom, param_com)
 
     dycomdt = deriv(dt, yref, yplus)
     dydt    = dycomdt + wp
+    
+    ! Vérification que nous sommes toujours dans le cadre
+    ! du modèle de Wagner
+    if (dydt > 0) then
+        print*, 'dydt > 0'
+        stop 
+    end if
 
     d2ycomdt2 = deriv2(dt, yref, yplus, ymoins)
 
-    Ma =    added_mass(t(3), w(2), param_geom, param_com)
+    Ma = added_mass(t(3), w(2), param_geom, param_com)
     Cs = slamming_coef(t(2:3), w, param_geom, param_com)
 
     f_equa = 1/(M+Ma) * (Cs * dydt**2 - k*w(2)) - d2ycomdt2

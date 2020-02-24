@@ -14,14 +14,13 @@ program Resolution_equadiff
     real(kind=8) :: dt, deriv
     real(kind=8), dimension(2) :: param_geom0, param_geom1, param_com
     real(kind=8) :: slamming_coef, cs, added_mass, ma
-   
-    dt = 1e-2
-    tn = (/0.d0, dt, 2.d0*dt/)
-    nsteps = 1e2
+    real(kind=8) :: t_adim, w_adim
 
-    U = 2.d0
-    M = 10.d0
-    k = 10.d0
+    nsteps = 5e3
+   
+    U = 5.d0
+    M = 100.d0
+    k = 10000000.d0
     beta = 0.5d0
     rayon = 1.d0
 
@@ -37,15 +36,24 @@ program Resolution_equadiff
 
     open(1, file='./resultats_parabole.dat')
     
+    ! Calculs pour la parabole
+    dt = 1e-5
+    tn = (/0.d0, dt, 2.d0*dt/)
+
     do i = 1,nsteps
         call rk4(dt, tn, wn, wpn, M, k, param_geom1, param_com)
         ma = added_mass(tn(3), wn(2),   param_geom1, param_com)
         cs = slamming_coef(tn(2:3), wn, param_geom1, param_com)
-        write(1,*) tn(3), wn(2), cs, ma
+        t_adim = tn(3)*sqrt(k/M)
+        w_adim = wn(2)*U*sqrt(M/k)
+        write(1,*) t_adim, w_adim, cs/k, ma/k
     end do
 
     close(1)
 
+    ! Calculs pour le dièdre
+    dt = 1e-5
+    tn = (/0.d0, dt, 2.d0*dt/)
     
     open(2, file='./resultats_wedge.dat')
     
@@ -53,7 +61,9 @@ program Resolution_equadiff
         call rk4(dt, tn, wn, wpn, M, k, param_geom0, param_com)
         ma = added_mass(tn(3), wn(2),   param_geom0, param_com)
         cs = slamming_coef(tn(2:3), wn, param_geom0, param_com)
-        write(2,*) tn(3), wn(2), cs, ma
+        t_adim = tn(3)*sqrt(k/M)
+        w_adim = wn(2)*U*sqrt(M/k)
+        write(2,*) t_adim, w_adim, cs/k, ma/k
     end do
 
     close(2)

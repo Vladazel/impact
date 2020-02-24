@@ -6,59 +6,38 @@ program Resolution_equadiff
     ! Résout le problème aux dérivées partielles
     implicit none
     real(kind=8), parameter :: PI = 4*atan(1.d0)
-    real(kind=8) :: M, k, beta, rayon
-    real(kind=8) :: wpn
-    real(kind=8), dimension(2) :: wn
-    real(kind=8), dimension(3) :: tn
+    real(kind=8) :: dt, tn, wn, wpn
     integer :: i, nsteps
-    real(kind=8) :: dt, deriv
     real(kind=8), dimension(2) :: param_geom, param_com
-    real(kind=8) :: slamming_coef, cs, added_mass, ma
     real(kind=8) :: t_adim, w_adim
 
-    wn(1) = 0
-    wn(2) = 0
-    wpn = deriv(dt, wn(1), wn(2))
-
-    ! Paramètres de la simulation
     open(unit = 1, file = './params.inp', status = 'old')
-    read(1,*) M
-    read(1,*) k
-    read(1,*) param_com(1)
-    read(1,*) param_com(2)
-    read(1,*) param_geom(1)
-    read(1,*) param_geom(2)
+    read(1,*) dt
     read(1,*) nsteps
     close(1)
 
+    wn = 0
+    wpn = 0
+
     ! Résolution
-    open(2, file='./resultats.dat')
-    
-    dt = 1e-4
-    tn = (/0.d0, dt, 2.d0*dt/)
+    dt = 1e-5
+    tn = 0.d0
+
+    open(unit = 2, file = './resultats.dat', status = 'replace', position = 'append', action = 'write')
 
     do i = 1,nsteps
         call rk4(dt, tn, wn, wpn)
-
-        ma = added_mass(tn(3), wn(2),   param_geom, param_com)
-        cs = slamming_coef(tn(2:3), wn, param_geom, param_com)
-        t_adim = tn(3)*sqrt(k/M)
-        w_adim = wn(2)*param_com(2)*sqrt(M/k)
-
-        write(2,*) t_adim, w_adim, cs/k, ma/k
+        tn = tn+dt
     end do
 
     close(2)
-
 end program Resolution_equadiff
 
 subroutine rk4(dt, tn, wn, wpn)
     ! Implémentation de Runge-Kutta d'ordre 4
     implicit none
-    real(kind=8), intent(in)  :: dt
-    real(kind=8), dimension(3), intent(out) :: tn
-    real(kind=8), dimension(2), intent(out) :: wn
-    real(kind=8), intent(out) :: wpn
+    real(kind=8), intent(in)  :: dt, tn
+    real(kind=8), intent(out) :: wn, wpn
     real(kind=8) :: k1, k2, k3, k4
     real(kind=8) :: f_equa
 
@@ -67,26 +46,24 @@ subroutine rk4(dt, tn, wn, wpn)
     k3 = f_equa(tn+dt/2.0, wn+dt/2.0*wpn+dt**2/4*k1, wpn+dt/2.0*k2)
     k4 = f_equa(tn+dt,     wn+dt*wpn+dt**2/2.0*k2,   wpn+dt*k3)
 
-    wn(1) = wn(2)
-    wn(2) = wn(2) + dt*wpn + dt**2/6.0*(k1+k2+k3)
-
+    wn = wn + dt*wpn + dt**2/6.0*(k1+k2+k3)
     wpn = wpn + dt/6.0*(k1+2.0*k2+2.0*k3+k4)
-
-    tn(1) = tn(2)
-    tn(2) = tn(3)
-    tn(3) = tn(3) + dt
 end subroutine rk4
 
-function y_commande(t, list_param)
+subroutine y_commande(t, ycom, dycomdt, d2ycomdt2, list_param)
     ! Définit la loi de commande
     implicit none
     !1ere valeur de list_param indique le type de loi de commande
     !0 pour vitesse constante
     real(kind=8), intent(in) :: t
     real(kind=8), dimension(2), intent(in) :: list_param
-    real(kind=8) :: y_commande
+    real(kind=8), intent(out) :: ycom, dycomdt, d2ycomdt2
 
     if(list_param(1) == 0) then
-        y_commande = -list_param(2) * t !vitesse constante
+        ycom = -list_param(2) * t !vitesse constante
+        dycomdt = -list_param(2)
+        d2ycomdt2 = 0
+    else
+        error stop
     end if
-end function y_commande 
+end subroutine y_commande 

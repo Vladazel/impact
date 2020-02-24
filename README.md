@@ -1,10 +1,11 @@
-# Calcul de la correction mouillée selon le modèle de Wagner
+# Cinématique d'un corps rigide lors d'un impact hydrodynamique
 
 ## Problème : 
 
 Nous nous intéressons à l'impact hydrodynamique d'une forme 2D avec prise en
 compte des vibrations par le biais d'un ressort dont le mouvement est imposé
 par une loi de commande. Le problème est 2D avec un degré de liberté selon y.
+Le modèle physique choisi est le modèle de Wagner.
 
 ```
             ____

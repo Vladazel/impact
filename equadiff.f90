@@ -6,15 +6,18 @@
 ! avec y = ycom + w
 !
 
-function f_equa(t, w, wp, M, k, param_geom, param_com)
+function f_equa(t, w, wp)
     !param geom est une liste def le type de géométrie
     !Ref à wetted_correction.f90
     implicit none
+    !Paramètres de la fonction
     real(kind=8), dimension(3), intent(in) :: t !tn-2, tn-1, tn
     real(kind=8), dimension(2), intent(in) :: w !wn-1, wn
-    real(kind=8), intent(in) :: wp, M, k
-    real(kind=8), dimension(2), intent(in) :: param_geom
-    real(kind=8), dimension(2), intent(in) :: param_com
+    real(kind=8), intent(in) :: wp
+    !Paramètres de la simulation
+    real(kind=8) :: M, k
+    real(kind=8), dimension(2) :: param_geom, param_com
+    !Variables de calcul
     real(kind=8) :: f_equa
     real(kind=8) :: y_commande
     real(kind=8) :: yref, yplus, ymoins
@@ -22,6 +25,16 @@ function f_equa(t, w, wp, M, k, param_geom, param_com)
     real(kind=8) :: dt, dycomdt, dydt, d2ycomdt2
     real(kind=8) :: deriv, deriv2
     real(kind=8) :: Ma, Cs, added_mass, slamming_coef
+
+    !Lecture des paramètres de la simulation
+    open(unit = 1, file = './params.inp', status = 'old')
+    read(1,*) M
+    read(1,*) k
+    read(1,*) param_com(1)
+    read(1,*) param_com(2)
+    read(1,*) param_geom(1)
+    read(1,*) param_geom(2)
+    close(1)
     
     yref   = y_commande(t(2), param_com) 
     yplus  = y_commande(t(3), param_com) 

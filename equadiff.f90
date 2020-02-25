@@ -7,11 +7,13 @@
 !
 
 function f_equa(t, w, wp)
-    !param geom est une liste def le type de géométrie
-    !Ref à wetted_correction.f90
+    !fonctionnement vectoriel
+    !w = (w, w')T et wp = (w', w'')T
     implicit none
     !Paramètres de la fonction
-    real(kind=8), intent(in) :: t, w, wp
+    real(kind=8) :: t
+    real(kind=8), dimension(2), intent(in) :: w
+    real(kind=8), dimension(2) :: wp
     !Paramètres de la simulation
     real(kind=8) :: M, k
     real(kind=8), dimension(2) :: param_geom, param_com
@@ -34,8 +36,8 @@ function f_equa(t, w, wp)
     
     !Calcul des dérivées successives de y_com
     call y_commande(t, ycom, dycomdt, d2ycomdt2, param_com) 
-    y = ycom + w
-    dydt = dycomdt + wp
+    y = ycom + w(1)
+    dydt = dycomdt + w(2)
     
     ! Vérification que nous sommes toujours dans le cadre
     ! du modèle de Wagner
@@ -48,9 +50,11 @@ function f_equa(t, w, wp)
     Cs = slamming_coef(t, y, param_geom)
 
     !écrit des variables adimensionnelles
-    write(2,*) t*sqrt(k/M), w/param_com(2)*sqrt(k/M), Ma/k, Cs/k
+    write(2,*) t*sqrt(k/M), w(1)/param_com(2)*sqrt(k/M), Ma/k, Cs/k
 
-    f_equa = 1/(M+Ma) * (Cs * dydt**2 - k*w) - d2ycomdt2
+    f_equa = 1/(M+Ma) * (Cs * dydt**2 - k*w(1)) - d2ycomdt2
+    wp(2) = f_equa
+    wp(1) = w(2)
 end function f_equa
 
 function added_mass(t, y, param_c)
@@ -68,7 +72,8 @@ function added_mass(t, y, param_c)
     else if (param_c(1) == 1.d0) then !parabole
         added_mass = -2.d0 * RHO * PI * param_c(2) * y
     else
-        error stop
+        print*, 'Masse ajoutée non définie'
+        stop
     end if
 end function
 
@@ -86,6 +91,7 @@ function slamming_coef(t, y, param_c)
     else if (param_c(1) == 1.d0) then !parabole
         slamming_coef = - RHO * PI**2 * param_c(2)
     else
-        error stop
+        print*, 'Coefficient de slamming non défini'
+        stop
     end if
 end function slamming_coef

@@ -63,20 +63,4 @@ subroutine rk4(f, dt, t0, w0, w)
     w = w0 + dt / 6.0d0 * (k0 + 2.0d0*k1 + 2.0d0*k2 + k3)
 end subroutine rk4
 
-subroutine y_commande(t, ycom, dycomdt, d2ycomdt2, list_param)
-    ! Définit la loi de commande
-    implicit none
-    !1ere valeur de list_param indique le type de loi de commande
-    !0 pour vitesse constante
-    real(kind=8), intent(in) :: t
-    real(kind=8), dimension(2), intent(in) :: list_param
-    real(kind=8), intent(out) :: ycom, dycomdt, d2ycomdt2
 
-    if(list_param(1) == 0) then
-        ycom = -list_param(2) * t !vitesse constante
-        dycomdt = -list_param(2)
-        d2ycomdt2 = 0
-    else
-        error stop
-    end if
-end subroutine y_commande 

@@ -53,5 +53,6 @@ Les fichiers de calculs ont chacun un rôle :
   masse ajoutée ainsi que le coefficient de slamming et définit la loi de
   commande.
 
-- resolution.f90 contient la fonction princpilae qui résout le problème avec
-  une implémentation de Runge-Kutta et
+- resolution.f90 contient le programme de résolution qui fait appel aux différents schémas d'intégrations et écrit les résultats dans un fichier resultats.dat
+
+- schema_int.f90 contient les schemas d'intégration utilisés: RK4 et RKF45

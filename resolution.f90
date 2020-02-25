@@ -13,7 +13,7 @@ program Resolution_equadiff
     real(kind=8), dimension(2) :: param_com, param_geom
     real(kind=8) :: Ma, Cs, added_mass, slamming_coef
     real(kind=8) :: M, k
-    integer :: i, nsteps
+    integer :: i, nsteps, schema
     external :: f_equa
     !variable inutile qui sert juste pour le calcul de ycom car on veut pas les autres
     !valeurs que peut sortir la subroutine y_commande
@@ -25,6 +25,7 @@ program Resolution_equadiff
     read(1,*) tstart
     read(1,*) tstop
     read(1,*) nsteps
+    read(1,*) schema
     close(1)
 
     open(unit = 2, file = './param_phy.inp', status = 'old')
@@ -43,19 +44,37 @@ program Resolution_equadiff
     open(unit = 3, file = './resultats.dat')
 
     do i = 1,nsteps
-        call y_commande(t, ycom, tmp, tmp, param_com) 
+        !On récupère la valeur de la commande pour calculer Ma et Cs
+        !On utilise une variable inutile tmp car ici on n'utilise pas les valeurs des dérivées de y
+        call y_commande(t, ycom, tmp, tmp, param_com)
         y = ycom + w0(1)
         Ma = added_mass(t, y, param_geom)
         Cs = slamming_coef(t, y, param_geom)
         write(3,*) t*sqrt(k/M), w0(1)/param_com(2)*sqrt(k/M), Cs*param_com(2)/sqrt(k*M), Ma/M
 
-        call rk4(f_equa, dt, t, w0, w)
+        call integration(f_equa, dt, t, w0, w, schema)
         t = t + dt
         w0 = w
     end do
 
     close(3)
 end program Resolution_equadiff
+
+subroutine integration(f, dt, t, w0, w, choix)
+    real(kind=8) :: dt, t
+    real(kind=8), dimension(2) :: w0, w
+    integer, intent(in) :: choix
+    external :: f, rk4
+
+    if (choix == 0) then
+        call rk4(f, dt, t, w0, w)
+    else if (choix == 1) then
+        call rkf45(f, dt, t, w0, w)
+    else
+        print*, "Erreur choix du schéma d'intégration"
+        stop
+    end if
+end subroutine integration
 
 subroutine rk4(f, dt, t0, w0, w)
     ! Implémentation de Runge-Kutta d'ordre 4

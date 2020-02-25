@@ -23,9 +23,9 @@ subroutine f_equa(t, w, wp)
 
     !Lecture des paramètres de la simulation
     open(unit = 4, file = './param_phy.inp', status = 'old')
-    read(4,*) M
-    read(4,*) k
-    read(4,*) param_com(1)
+    read(4,*) M !masse 
+    read(4,*) k !raideur
+    read(4,*) param_com(1) 
     read(4,*) param_com(2)
     read(4,*) param_geom(1)
     read(4,*) param_geom(2)
@@ -98,12 +98,14 @@ subroutine y_commande(t, ycom, dycomdt, d2ycomdt2, list_param)
     real(kind=8), dimension(2), intent(in) :: list_param
     real(kind=8), intent(out) :: ycom, dycomdt, d2ycomdt2
 
-    if(list_param(1) == 0) then
+    if(list_param(1) == 0) then    
         ycom = -list_param(2) * t !vitesse constante
         dycomdt = -list_param(2)
         d2ycomdt2 = 0
+        
     else
         print*, 'Commande non définie'
         stop
+        
     end if
 end subroutine y_commande 

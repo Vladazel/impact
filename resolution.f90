@@ -44,6 +44,7 @@ program Resolution_equadiff
         
         t = tstart
         dt = (tstop - tstart)/nstep
+        print*, 'rk4'
         print*, 'Pas de temps =', dt
         
         do i = 1,nstep        
@@ -61,7 +62,7 @@ program Resolution_equadiff
         
         end do
     else if (schema == 1) then !rkf45
-
+        print*, 'rkf45'
         abserr = sqrt ( epsilon ( abserr ) )
         relerr = sqrt ( epsilon ( relerr ) )
 
@@ -75,9 +76,13 @@ program Resolution_equadiff
         w(2) = w0(2)
         
         call f_equa( t, w, wp )
-
-
-        write ( 10,* ) t, w(1), w(2)
+        
+        call y_commande(t, ycom, tmp, tmp, param_com)
+        y = ycom + w0(1)
+        Ma = added_mass(t, y, param_geom)
+        Cs = slamming_coef(t, y, param_geom)
+        
+        write ( 10,* ) t*sqrt(k/M), w(1)/param_com(2)*sqrt(k/M), Cs*param_com(2)/sqrt(k*M), Ma/M
         
 
         do i = 1, nstep
@@ -91,9 +96,13 @@ program Resolution_equadiff
                   / real ( nstep,     kind = 8 )
           neqn=2
           call r8_rkf45 ( f_equa, neqn, w, wp, t, t_out, relerr, abserr, flag )
-
-          write ( 10, *) t, w(1), w(2)
-          
+          call y_commande(t, ycom, tmp, tmp, param_com)
+          y = ycom + w0(1)
+          Ma = added_mass(t, y, param_geom)
+          Cs = slamming_coef(t, y, param_geom)
+        
+          write ( 10,* ) t*sqrt(k/M), w(1)/param_com(2)*sqrt(k/M), Cs*param_com(2)/sqrt(k*M), Ma/M
+                    
         end do
         
     close(10)

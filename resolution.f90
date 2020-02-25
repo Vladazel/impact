@@ -57,32 +57,4 @@ program Resolution_equadiff
     close(3)
 end program Resolution_equadiff
 
-subroutine rk4(f, dt, t0, w0, w)
-    ! Implémentation de Runge-Kutta d'ordre 4
-    implicit none
-    real(kind=8), intent(in) :: dt, t0
-    real(kind=8), dimension(2), intent(in) :: w0
-    ! w0 : solution au pas de temps actuel
-    ! w  : solution au prochain pas de temps
-    real(kind=8), dimension(2), intent(out) :: w
-    real(kind=8) :: t1, t2, t3
-    real(kind=8), dimension(2) :: k0, k1, k2, k3
-    real(kind=8), dimension(2) :: w1, w2, w3
-    external :: f
 
-    call f(t0, w0, k0)
-
-    t1 = t0 + dt / 2.0d0
-    w1 = w0 + dt / 2.0d0 * k0
-    call f(t1, w1, k1)
-
-    t2 = t0 + dt / 2.0d0
-    w2 = w0 + dt / 2.0d0 * k1
-    call f(t2, w2, k2)
-
-    t3 = t0 + dt / 2.0d0
-    w3 = w0 + dt / 2.0d0 * k2
-    call f(t3, w3, k3)
-
-    w = w0 + dt / 6.0d0 * (k0 + 2.0d0*k1 + 2.0d0*k2 + k3)
-end subroutine rk4

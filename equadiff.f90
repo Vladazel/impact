@@ -6,19 +6,18 @@
 ! avec y = ycom + w
 !
 
-function f_equa(t, w, wp)
+subroutine f_equa(t, w, wp)
     !fonctionnement vectoriel
     !w = (w, w')T et wp = (w', w'')T
     implicit none
     !Paramètres de la fonction
-    real(kind=8) :: t
+    real(kind=8), intent(in) :: t
     real(kind=8), dimension(2), intent(in) :: w
-    real(kind=8), dimension(2) :: wp
+    real(kind=8), dimension(2), intent(out) :: wp
     !Paramètres de la simulation
     real(kind=8) :: M, k
     real(kind=8), dimension(2) :: param_geom, param_com
     !Variables de calcul
-    real(kind=8) :: f_equa
     real(kind=8) :: ycom, y, dycomdt, dydt, d2ycomdt2
     real(kind=8) :: Ma, Cs, added_mass, slamming_coef
 
@@ -49,13 +48,9 @@ function f_equa(t, w, wp)
     Ma = added_mass(t, y, param_geom)
     Cs = slamming_coef(t, y, param_geom)
 
-    !écrit des variables adimensionnelles
-    write(2,*) t*sqrt(k/M), w(1)/param_com(2)*sqrt(k/M), Ma/k, Cs/k
-
-    f_equa = 1/(M+Ma) * (Cs * dydt**2 - k*w(1)) - d2ycomdt2
-    wp(2) = f_equa
     wp(1) = w(2)
-end function f_equa
+    wp(2) = 1/(M+Ma) * (Cs * dydt**2 - k*w(1)) - d2ycomdt2
+end subroutine f_equa
 
 function added_mass(t, y, param_c)
     !Calcule le coef de slamming Cs

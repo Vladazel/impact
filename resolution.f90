@@ -7,8 +7,10 @@ program Resolution_equadiff
     implicit none
     real(kind=8), parameter :: PI = 4*atan(1.d0)
     real(kind=8) :: dt, t
-    real(kind=8), dimension(2) :: w, wp
-    real(kind=8), external :: f_equa
+    ! w0 : solution au pas de temps actuel
+    ! w : solution au prochain pas de temps
+    real(kind=8), dimension(2) :: w0, w
+    external :: f_equa
     integer :: i, nsteps
 
     open(unit = 1, file = './params.inp', status = 'old')
@@ -16,36 +18,49 @@ program Resolution_equadiff
     read(1,*) nsteps
     close(1)
 
-    w = (/0.d0, 0.d0/)
-    wp = (/0.d0, 0.d0/)
+    w0 = (/0.d0, 0.d0/)
 
     t = 0.d0
 
-    open(unit = 2, file = './resultats.dat', status = 'replace', position = 'append', action = 'write')
+    open(unit = 2, file = './resultats.dat')
 
     do i = 1,nsteps
-        call rk4(f_equa, dt, t, w, wp)
+        call rk4(f_equa, dt, t, w0, w)
+        write(2,*) t, w(1), w(2)
         t = t+dt
     end do
 
     close(2)
 end program Resolution_equadiff
 
-subroutine rk4(f, dt, t, w, wp)
+subroutine rk4(f, dt, t0, w0, w)
     ! Implémentation de Runge-Kutta d'ordre 4
     implicit none
-    real(kind=8), intent(in)  :: dt, t
-    real(kind=8), dimension(2), intent(out) :: w, wp
-    real(kind=8) :: k1, k2, k3, k4
-    real(kind=8), external :: f
+    real(kind=8), intent(in) :: dt, t0
+    real(kind=8), dimension(2), intent(in) :: w0
+    ! w0 : solution au pas de temps actuel
+    ! w  : solution au prochain pas de temps
+    real(kind=8), dimension(2), intent(out) :: w
+    real(kind=8) :: t1, t2, t3
+    real(kind=8), dimension(2) :: k0, k1, k2, k3
+    real(kind=8), dimension(2) :: w1, w2, w3
+    external :: f
 
-    k1 = f(t,        w,                      wp)
-    k2 = f(t+dt/2.0, w+dt/2.0*wp,            wp+dt/2.0*k1)
-    k3 = f(t+dt/2.0, w+dt/2.0*wp+dt**2/4*k1, wp+dt/2.0*k2)
-    k4 = f(t+dt,     w+dt*wp+dt**2/2.0*k2,   wp+dt*k3)
+    call f(t0, w0, k0)
 
-    w(1) = w(1) + dt*w(2) + dt**2/6.0*(k1+k2+k3)
-    w(2) = w(2) + dt/6.0*(k1+2.0*k2+2.0*k3+k4)
+    t1 = t0 + dt / 2.0d0
+    w1 = w0 + dt / 2.0d0 * k0
+    call f(t1, w1, k1)
+
+    t2 = t0 + dt / 2.0d0
+    w2 = w0 + dt / 2.0d0 * k1
+    call f(t2, w2, k2)
+
+    t3 = t0 + dt / 2.0d0
+    w3 = w0 + dt / 2.0d0 * k2
+    call f(t3, w3, k3)
+
+    w = w0 + dt / 6.0d0 * (k0 + 2.0d0*k1 + 2.0d0*k2 + k3)
 end subroutine rk4
 
 subroutine y_commande(t, ycom, dycomdt, d2ycomdt2, list_param)

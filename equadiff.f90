@@ -22,16 +22,14 @@ subroutine f_equa(t, w, wp)
     real(kind=8) :: Ma, Cs, added_mass, slamming_coef
 
     !Lecture des paramètres de la simulation
-    open(unit = 1, file = './params.inp', status = 'old')
-    read(1,*)
-    read(1,*)
-    read(1,*) M
-    read(1,*) k
-    read(1,*) param_com(1)
-    read(1,*) param_com(2)
-    read(1,*) param_geom(1)
-    read(1,*) param_geom(2)
-    close(1)
+    open(unit = 4, file = './param_phy.inp', status = 'old')
+    read(4,*) M
+    read(4,*) k
+    read(4,*) param_com(1)
+    read(4,*) param_com(2)
+    read(4,*) param_geom(1)
+    read(4,*) param_geom(2)
+    close(4)
     
     !Calcul des dérivées successives de y_com
     call y_commande(t, ycom, dycomdt, d2ycomdt2, param_com) 
@@ -105,6 +103,7 @@ subroutine y_commande(t, ycom, dycomdt, d2ycomdt2, list_param)
         dycomdt = -list_param(2)
         d2ycomdt2 = 0
     else
-        error stop
+        print*, 'Commande non définie'
+        stop
     end if
 end subroutine y_commande 

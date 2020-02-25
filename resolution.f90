@@ -12,6 +12,7 @@ program Resolution_equadiff
     real(kind=8), dimension(2) :: w0, w
     external :: f_equa
     integer :: i, nsteps
+    integer(kind=4), parameter :: n=2
 
     open(unit = 1, file = './params.inp', status = 'old')
     read(1,*) dt
@@ -26,8 +27,9 @@ program Resolution_equadiff
 
     do i = 1,nsteps
         call rk4(f_equa, dt, t, w0, w)
-        write(2,*) t, w(1), w(2)
+        write(2,*) t, w0(1), w0(2)
         t = t+dt
+        w0 = w
     end do
 
     close(2)
@@ -62,5 +64,3 @@ subroutine rk4(f, dt, t0, w0, w)
 
     w = w0 + dt / 6.0d0 * (k0 + 2.0d0*k1 + 2.0d0*k2 + k3)
 end subroutine rk4
-
-

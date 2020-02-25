@@ -49,11 +49,9 @@ On résout ainsi wpp = f(t, w, wp)
 
 Les fichiers de calculs ont chacun un rôle :
 
-- derivation.f90 implémente la méthode de calculer les dérivées premières et secondes.
+- equadiff.f90 définit la fonction f tel que wpp = f(t, w, wp), calcule la
+  masse ajoutée ainsi que le coefficient de slamming et définit la loi de
+  commande.
 
-- wetted_correction.f90 permet de calculer la correction mouillée par le modèle de Wagner selon la forme choisie.
-
-- equadiff.f90 définit la fonction f tel que wpp = f(t, w, wp) et calcule la masse ajoutée ainsi que le coefficient de slamming.
-
-- resolution.f90 résout le problème avec une implémentation de Runge-Kutta et définit aussi la loi de commande qui sert d'entrée au problème.
-
+- resolution.f90 contient la fonction princpilae qui résout le problème avec
+  une implémentation de Runge-Kutta et

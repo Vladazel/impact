@@ -40,23 +40,32 @@ program Resolution_equadiff
     
 
     open(unit = 10, file = './resultats.dat')
-    if( schema==0 ) then !rk4
+    if (schema == 0) then !rk4
         
         t = tstart
         dt = (tstop - tstart)/nstep
         print*, 'rk4'
         print*, 'Pas de temps =', dt
         
+        call y_commande(t, ycom, tmp, tmp, param_com)
+        y = ycom + w0(1)
+        Ma = added_mass(t, y, param_geom)
+        Cs = slamming_coef(t, y, param_geom)
+        write(10,*) t*sqrt(k/M), w0(1)/param_com(2)*sqrt(k/M), Cs*param_com(2)/sqrt(k*M), Ma/M
+
         do i = 1,nstep        
+
             !On récupère la valeur de la commande pour calculer Ma et Cs
             !On utilise une variable inutile tmp car ici on n'utilise pas les valeurs des dérivées de y
             call y_commande(t, ycom, tmp, tmp, param_com)
             y = ycom + w0(1)
             Ma = added_mass(t, y, param_geom)
             Cs = slamming_coef(t, y, param_geom)
-            write(10,*) t*sqrt(k/M), w0(1)/param_com(2)*sqrt(k/M), Cs*param_com(2)/sqrt(k*M), Ma/M
 
             call rk4(f_equa, dt, t, w0, w)
+
+            write(10,*) t*sqrt(k/M), w0(1)/param_com(2)*sqrt(k/M), Cs*param_com(2)/sqrt(k*M), Ma/M
+
             t = t + dt
             w0 = w
         

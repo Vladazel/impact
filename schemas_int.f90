@@ -492,6 +492,7 @@ subroutine r8_rkf45 ( f, neqn, y, yp, t, tout, relerr, abserr, flag )
         write ( *, '(a)' ) '  Integration cannot be continued.'
         write ( *, '(a)' ) '  The user did not respond to the output'
         write ( *, '(a)' ) '  value FLAG = 5, 6, 7, or 8.'
+        write ( *, '(a)' ) 'Flag', mflag
         stop
       end if
 

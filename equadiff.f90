@@ -24,7 +24,7 @@ subroutine f_equa(t, w, wp)
     !Lecture des paramètres de la simulation
     open(unit = 4, file = './param_phy.inp', status = 'old')
     read(4,*) M !masse 
-    read(4,*) k !raideur
+    read(4,*) k !raideur 
     read(4,*) param_com(1) 
     read(4,*) param_com(2)
     read(4,*) param_geom(1)

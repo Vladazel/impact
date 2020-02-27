@@ -53,7 +53,7 @@ end subroutine f_equa
 function added_mass(t, y, param_c)
     !Calcule le coef de slamming Cs
     implicit none
-    real(kind=8), parameter :: RHO = 999
+    real(kind=8), parameter :: RHO = 999.d0
     real(kind=8), parameter :: PI = 4*atan(1.d0)
     real(kind=8), intent(in) :: t, y 
     real(kind=8), dimension(2), intent(in) :: param_c
@@ -73,7 +73,7 @@ end function
 function slamming_coef(t, y, param_c)
     !Calcule la masse ajoutée
     implicit none
-    real(kind=8), parameter :: RHO = 999
+    real(kind=8), parameter :: RHO = 999.d0
     real(kind=8), parameter :: PI = 4*atan(1.d0)
     real(kind=8), intent(in) :: t, y
     real(kind=8), dimension(2), intent(in) :: param_c

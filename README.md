@@ -24,9 +24,8 @@ Le modèle physique choisi est le modèle de Wagner.
 
 ## But : 
 
-Résolution de l'équation aux dérivées partielles avec plusieurs formes
-(dièdre, parabole) et plusieurs méthodes d'intégration (pour l'instant
-seulement RK4) à but de comparaison des différentes méthodes.
+Résolution de l'équation aux dérivées partielles avec deux formes disponibles
+(dièdre, parabole) et une méthodes d'intégration au choix (RK4 ou RKF45).
 
 ## Mise en équations
 
@@ -53,6 +52,8 @@ Les fichiers de calculs ont chacun un rôle :
   masse ajoutée ainsi que le coefficient de slamming et définit la loi de
   commande.
 
-- resolution.f90 contient le programme de résolution qui fait appel aux différents schémas d'intégrations et écrit les résultats dans un fichier resultats.dat
+- resolution.f90 contient le programme de résolution qui fait appel aux
+  différents schémas d'intégrations et écrit les résultats dans un fichier
+  resultats.dat
 
 - schema_int.f90 contient les schemas d'intégration utilisés: RK4 et RKF45

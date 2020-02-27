@@ -38,7 +38,6 @@ program Resolution_equadiff
     close(2)
 
     
-
     open(unit = 10, file = './resultats.dat')
     if (schema == 0) then !rk4
         
@@ -51,8 +50,8 @@ program Resolution_equadiff
         y = ycom + w0(1)
         Ma = added_mass(t, y, param_geom)
         Cs = slamming_coef(t, y, param_geom)
-        write(10,*) t*sqrt(k/M), w0(1)/param_com(2)*sqrt(k/M), Cs*param_com(2)/sqrt(k*M), Ma/M, & 
-            dycomdt/param_com(2), w0(2)/param_com(2)
+
+        call ecrire(t, w, k, M, Ma, Cs, param_com)
 
         do i = 1,nstep        
 
@@ -65,8 +64,7 @@ program Resolution_equadiff
 
             call rk4(f_equa, dt, t, w0, w)
 
-            write(10,*) t*sqrt(k/M), w0(1)/param_com(2)*sqrt(k/M), Cs*param_com(2)/sqrt(k*M), Ma/M, & 
-                dycomdt/param_com(2), w0(2)/param_com(2)
+            call ecrire(t, w, k, M, Ma, Cs, param_com)
 
             t = t + dt
             w0 = w
@@ -93,28 +91,25 @@ program Resolution_equadiff
         Ma = added_mass(t, y, param_geom)
         Cs = slamming_coef(t, y, param_geom)
         
-        write ( 10,* ) t*sqrt(k/M), w(1)/param_com(2)*sqrt(k/M), Cs*param_com(2)/sqrt(k*M), Ma/M, &
-            dycomdt/param_com(2), w(2)/param_com(2)
-        
+        call ecrire(t, w, k, M, Ma, Cs, param_com)
 
         do i = 1, nstep
-          !définition de l'intervalle de temps pour l'intégration 
-          t = ( real ( nstep - i + 1, kind = 8 ) * tstart &
-              + real (         i - 1, kind = 8 ) * tstop ) &
-              / real ( nstep,         kind = 8 )
+            !définition de l'intervalle de temps pour l'intégration 
+            t = ( real ( nstep - i + 1, kind = 8 ) * tstart &
+                + real (         i - 1, kind = 8 ) * tstop ) &
+                / real ( nstep,         kind = 8 )
 
-          t_out = ( real ( nstep - i, kind = 8 ) * tstart &
-                  + real (         i, kind = 8 ) * tstop ) &
-                  / real ( nstep,     kind = 8 )
-          neqn=2 !equation vectorielle de dimension 2
-          call r8_rkf45 ( f_equa, neqn, w, wp, t, t_out, relerr, abserr, flag )
-          call y_commande(t, ycom, dycomdt, tmp, param_com)
-          y = ycom + w0(1)
-          Ma = added_mass(t, y, param_geom)
-          Cs = slamming_coef(t, y, param_geom)
+            t_out = ( real ( nstep - i, kind = 8 ) * tstart &
+                    + real (         i, kind = 8 ) * tstop ) &
+                    / real ( nstep,     kind = 8 )
+            neqn=2 !equation vectorielle de dimension 2
+            call r8_rkf45 ( f_equa, neqn, w, wp, t, t_out, relerr, abserr, flag )
+            call y_commande(t, ycom, dycomdt, tmp, param_com)
+            y = ycom + w0(1)
+            Ma = added_mass(t, y, param_geom)
+            Cs = slamming_coef(t, y, param_geom)
         
-          write ( 10,* ) t*sqrt(k/M), w(1)/param_com(2)*sqrt(k/M), Cs*param_com(2)/sqrt(k*M), Ma/M, &
-            dycomdt/param_com(2), w(2)/param_com(2)
+            call ecrire(t, w, k, M, Ma, Cs, param_com)
                     
         end do
         
@@ -123,3 +118,13 @@ program Resolution_equadiff
     end if
         
 end program Resolution_equadiff
+
+subroutine ecrire(t, w, k, M, Ma, Cs, param_com)
+    real(kind=8), intent(in) :: t, k, M, Ma, Cs
+    real(kind=8), dimension(2), intent(in) :: w, param_com
+    !write ( 10,* ) t*sqrt(k/M), w(1)/param_com(2)*sqrt(k/M), Cs*param_com(2)/sqrt(k*M), Ma/M, &
+    !        dycomdt/param_com(2), w(2)/param_com(2)
+    write ( 10,* ) t*sqrt(k/M), w(1), Cs, Ma, &
+            dycomdt, w(2)
+end subroutine ecrire
+

@@ -120,11 +120,13 @@ program Resolution_equadiff
 end program Resolution_equadiff
 
 subroutine ecrire(t, w, k, M, Ma, Cs, param_com)
+    real(kind=8), parameter :: RHO = 999.d0
     real(kind=8), intent(in) :: t, k, M, Ma, Cs
     real(kind=8), dimension(2), intent(in) :: w, param_com
-    !write ( 10,* ) t*sqrt(k/M), w(1)/param_com(2)*sqrt(k/M), Cs*param_com(2)/sqrt(k*M), Ma/M, &
-    !        dycomdt/param_com(2), w(2)/param_com(2)
-    write ( 10,* ) t*sqrt(k/M), w(1), Cs, Ma, &
-            dycomdt, w(2)
+    write(10,*) t*param_com(2)*(RHO/M)**(1.d0/3.d0), &
+                w(1)*(RHO/M)**(1.d0/3.d0), &
+                Cs/M*(M/RHO)**(2.d0/3.d0), &
+                Ma/M, &
+                dycomdt/param_com(2), &
+                w(2)/param_com(2)
 end subroutine ecrire
-

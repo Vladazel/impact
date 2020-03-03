@@ -128,5 +128,8 @@ subroutine ecrire(t, w, k, M, Ma, Cs, param_com)
                 Cs/M*(M/RHO)**(2.d0/3.d0), &
                 Ma/M, &
                 dycomdt/param_com(2), &
-                w(2)/param_com(2)
+                w(2)/param_com(2), &
+                0.5d0*M*(dycomdt+w(2))**2, &
+                0.5d0*Ma*(dycomdt+w(2))**2, &
+                0.5d0*k*w(1)**2
 end subroutine ecrire

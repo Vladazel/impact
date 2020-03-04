@@ -40,7 +40,7 @@ Notations :
 - wpp = w''
 
 ```
-(M+Ma)*ypp - Cs*yp**2 + k*w = 0
+(M+Ma)*ypp + Cs*yp**2 + k*w = 0
 ```
 On résout ainsi wpp = f(t, w, wp)
 

@@ -39,6 +39,7 @@ program Resolution_equadiff
 
     
     open(unit = 10, file = './resultats.dat')
+    open(unit = 11, file = './energie.dat')
     if (schema == 0) then !rk4
         
         t = tstart
@@ -51,7 +52,7 @@ program Resolution_equadiff
         Ma = added_mass(t, y, param_geom)
         Cs = slamming_coef(t, y, param_geom)
 
-        call ecrire(t, w, k, M, Ma, Cs, param_com)
+        call ecrire(t, w, k, M, Ma, Cs, param_com, ycom, dycomdt)
 
         do i = 1,nstep        
 
@@ -64,7 +65,7 @@ program Resolution_equadiff
 
             call rk4(f_equa, dt, t, w0, w)
 
-            call ecrire(t, w, k, M, Ma, Cs, param_com)
+            call ecrire(t, w, k, M, Ma, Cs, param_com, ycom, dycomdt)
 
             t = t + dt
             w0 = w
@@ -91,7 +92,7 @@ program Resolution_equadiff
         Ma = added_mass(t, y, param_geom)
         Cs = slamming_coef(t, y, param_geom)
         
-        call ecrire(t, w, k, M, Ma, Cs, param_com)
+        call ecrire(t, w, k, M, Ma, Cs, param_com, ycom, dycomdt)
 
         do i = 1, nstep
             !définition de l'intervalle de temps pour l'intégration 
@@ -109,27 +110,33 @@ program Resolution_equadiff
             Ma = added_mass(t, y, param_geom)
             Cs = slamming_coef(t, y, param_geom)
         
-            call ecrire(t, w, k, M, Ma, Cs, param_com)
+            call ecrire(t, w, k, M, Ma, Cs, param_com, ycom, dycomdt)
                     
         end do
         
     close(10)
+    close(11)
 
     end if
         
 end program Resolution_equadiff
 
-subroutine ecrire(t, w, k, M, Ma, Cs, param_com)
+subroutine ecrire(t, w, k, M, Ma, Cs, param_com, ycom, dycomdt)
+    implicit none
     real(kind=8), parameter :: RHO = 999.d0
-    real(kind=8), intent(in) :: t, k, M, Ma, Cs
+    real(kind=8), intent(in) :: t, k, M, Ma, Cs, ycom, dycomdt
     real(kind=8), dimension(2), intent(in) :: w, param_com
+
     write(10,*) t*param_com(2)*(RHO/M)**(1.d0/3.d0), &
                 w(1)*(RHO/M)**(1.d0/3.d0), &
                 Cs/M*(M/RHO)**(2.d0/3.d0), &
                 Ma/M, &
                 dycomdt/param_com(2), &
-                w(2)/param_com(2), &
-                0.5d0*M*(dycomdt+w(2))**2, &
-                0.5d0*Ma*(dycomdt+w(2))**2, &
-                0.5d0*k*w(1)**2
+                w(2)/param_com(2)
+                
+    write(11,*) t, &
+                0.5d0*M*(dycomdt+w(2))**2 , & !Ec(t)-Ec(0)
+                0.5d0*Ma*(dycomdt+w(2))**2, &  !Ec Masse ajoutée
+                0.5d0*k*w(1)**2, & !Energie potentielle élastique
+                Cs*(dycomdt+w(2))**2*(w(1)+ycom) + 0.5d0*M*param_com(2)  ! Travail opérateur pour vitesse constante 
 end subroutine ecrire

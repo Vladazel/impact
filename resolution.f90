@@ -14,7 +14,7 @@ program Resolution_equadiff
     real(kind=8) :: Ma, Cs, added_mass, slamming_coef
     real(kind=8) :: M, k
     integer(kind=4) :: i, nstep, schema, flag,neqn
-    external :: f_equa
+    external :: f
     !variable inutile qui sert juste pour le calcul de ycom car on veut pas les autres
     !valeurs que peut sortir la subroutine y_commande
     real(kind=8) :: tmp, dycomdt
@@ -37,9 +37,9 @@ program Resolution_equadiff
     read(2,*) param_geom(2)
     close(2)
 
-    
     open(unit = 10, file = './resultats.dat')
     open(unit = 11, file = './energie.dat')
+
     if (schema == 0) then !rk4
         
         t = tstart
@@ -54,16 +54,16 @@ program Resolution_equadiff
 
         call ecrire(t, w, k, M, Ma, Cs, param_com, ycom, dycomdt)
 
-        do i = 1,nstep        
+        do i = 1, nstep        
 
             !On récupère la valeur de la commande pour calculer Ma et Cs
             !On utilise une variable inutile tmp car ici on n'utilise pas les valeurs des dérivées de y
             call y_commande(t, ycom, dycomdt, tmp, param_com)
-            y = ycom + w0(1)
+            y = ycom + w(1)
             Ma = added_mass(t, y, param_geom)
             Cs = slamming_coef(t, y, param_geom)
 
-            call rk4(f_equa, dt, t, w0, w)
+            call rk4(f, dt, t, w0, w)
 
             call ecrire(t, w, k, M, Ma, Cs, param_com, ycom, dycomdt)
 
@@ -85,10 +85,10 @@ program Resolution_equadiff
         w(1) = w0(1)
         w(2) = w0(2)
         
-        call f_equa( t, w, wp )
+        call f( t, w, wp )
         
         call y_commande(t, ycom, dycomdt, tmp, param_com)
-        y = ycom + w0(1)
+        y = ycom + w(1)
         Ma = added_mass(t, y, param_geom)
         Cs = slamming_coef(t, y, param_geom)
         
@@ -104,9 +104,9 @@ program Resolution_equadiff
                     + real (         i, kind = 8 ) * tstop ) &
                     / real ( nstep,     kind = 8 )
             neqn=2 !equation vectorielle de dimension 2
-            call r8_rkf45 ( f_equa, neqn, w, wp, t, t_out, relerr, abserr, flag )
+            call r8_rkf45 ( f, neqn, w, wp, t, t_out, relerr, abserr, flag )
             call y_commande(t, ycom, dycomdt, tmp, param_com)
-            y = ycom + w0(1)
+            y = ycom + w(1)
             Ma = added_mass(t, y, param_geom)
             Cs = slamming_coef(t, y, param_geom)
         

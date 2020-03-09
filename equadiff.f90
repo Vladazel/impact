@@ -152,7 +152,7 @@ function slamming_coef(t, y, param_c)
     if (param_c(1) == 0.d0) then !dièdre
         slamming_coef = RHO * PI**3 * y / (4 * tan(param_c(2))**2)
     else if (param_c(1) == 1.d0) then !parabole
-        slamming_coef = - RHO * PI * 2.d0 * param_c(2)
+        slamming_coef = - 2.d0 * RHO * PI * param_c(2)
     else
         print*, 'Coefficient de slamming non défini'
         stop

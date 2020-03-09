@@ -39,6 +39,7 @@ program Resolution_equadiff
 
     open(unit = 10, file = './resultats.dat')
     open(unit = 11, file = './energie.dat')
+    open(unit = 12, file = './oscillateur.dat')
 
     if (schema == 0) then !rk4
         
@@ -52,7 +53,7 @@ program Resolution_equadiff
         Ma = added_mass(t, y, param_geom)
         Cs = slamming_coef(t, y, param_geom)
 
-        call ecrire(t, w, k, M, Ma, Cs, param_com, ycom, dycomdt)
+        call ecrire(t, w, k, M, Ma, Cs, param_com, param_geom, ycom, dycomdt)
 
         do i = 1, nstep        
 
@@ -65,7 +66,7 @@ program Resolution_equadiff
 
             call rk4(f, dt, t, w0, w)
 
-            call ecrire(t, w, k, M, Ma, Cs, param_com, ycom, dycomdt)
+            call ecrire(t, w, k, M, Ma, Cs, param_com, param_geom, ycom, dycomdt)
 
             t = t + dt
             w0 = w
@@ -92,7 +93,7 @@ program Resolution_equadiff
         Ma = added_mass(t, y, param_geom)
         Cs = slamming_coef(t, y, param_geom)
         
-        call ecrire(t, w, k, M, Ma, Cs, param_com, ycom, dycomdt)
+        call ecrire(t, w, k, M, Ma, Cs, param_com, param_geom, ycom, dycomdt)
 
         do i = 1, nstep
             !définition de l'intervalle de temps pour l'intégration 
@@ -110,9 +111,13 @@ program Resolution_equadiff
             Ma = added_mass(t, y, param_geom)
             Cs = slamming_coef(t, y, param_geom)
         
-            call ecrire(t, w, k, M, Ma, Cs, param_com, ycom, dycomdt)
+            call ecrire(t, w, k, M, Ma, Cs, param_com, param_geom, ycom, dycomdt)
                     
         end do
+
+    else
+        print*, "Schéma d'intégration non défini"
+        stop
         
     close(10)
     close(11)
@@ -121,11 +126,35 @@ program Resolution_equadiff
         
 end program Resolution_equadiff
 
-subroutine ecrire(t, w, k, M, Ma, Cs, param_com, ycom, dycomdt)
+subroutine carac_oscil(w, k, M, Ma, Cs, param_com, param_geom, w0, zeta)
+    implicit none
+    real(kind=8), parameter :: RHO = 999.d0
+    real(kind=8), parameter :: PI = 4.d0*atan(1.d0)
+    real(kind=8), intent(in) :: k, M, Ma, Cs
+    real(kind=8), dimension(2), intent(in) :: w, param_com, param_geom
+    real(kind=8) :: dCsdw
+    real(kind=8), intent(out) :: w0, zeta
+
+    if (param_geom(1) == 0.d0) then !dièdre
+        dCsdw = 2 * RHO * PI * param_geom(2) * (param_com(1)/w(2) - 1)
+    else if (param_geom(1) == 1.d0) then !parabole
+        dCsdw = RHO * PI**3 / (4.d0*tan(param_geom(2))**2) * (param_com(1)/w(2) - 1)
+    else
+        print*, "Géométrie non définie"
+        stop
+    end if
+
+    w0 = sqrt( (k+dCsdw*param_com(2)**2) / (M+Ma) )
+    zeta = - (Cs*param_com(2)) / (M+Ma) / w0
+end subroutine carac_oscil
+
+subroutine ecrire(t, w, k, M, Ma, Cs, param_com, param_geom, ycom, dycomdt)
     implicit none
     real(kind=8), parameter :: RHO = 999.d0
     real(kind=8), intent(in) :: t, k, M, Ma, Cs, ycom, dycomdt
-    real(kind=8), dimension(2), intent(in) :: w, param_com
+    real(kind=8), dimension(2), intent(in) :: w, param_com, param_geom
+    external :: carac_oscil
+    real(kind=8) :: w0, zeta
 
     write(10,*) t*param_com(2)*(RHO/M)**(1.d0/3.d0), &
                 w(1)*(RHO/M)**(1.d0/3.d0), &
@@ -134,9 +163,14 @@ subroutine ecrire(t, w, k, M, Ma, Cs, param_com, ycom, dycomdt)
                 dycomdt/param_com(2), &
                 w(2)/param_com(2)
                 
-    write(11,*) t, &
+    write(11,*) t*param_com(2)*(RHO/M)**(1.d0/3.d0), &
                 0.5d0*M*(dycomdt+w(2))**2 , & !Ec(t)-Ec(0)
                 0.5d0*Ma*(dycomdt+w(2))**2, &  !Ec Masse ajoutée
                 0.5d0*k*w(1)**2, & !Energie potentielle élastique
                 Cs*(dycomdt+w(2))**2*(w(1)+ycom) + 0.5d0*M*param_com(2)  ! Travail opérateur pour vitesse constante 
+    w0 = 0.d0
+    zeta = 0.d0
+    call carac_oscil(w, k, M, Ma, Cs, param_com, param_geom, w0, zeta)
+
+    write(12,*) t, w0, zeta
 end subroutine ecrire

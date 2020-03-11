@@ -158,7 +158,7 @@ subroutine ecrire(t, w, k, M, Ma, Cs, param_com, param_geom, ycom, dycomdt)
 
     write(10,*) t*param_com(2)*(RHO/M)**(1.d0/3.d0), &
                 w(1)*(RHO/M)**(1.d0/3.d0), &
-                Cs/M*(M/RHO)**(2.d0/3.d0), &
+                Cs/M*(M/RHO)**(1.d0/3.d0), &
                 Ma/M, &
                 dycomdt/param_com(2), &
                 w(2)/param_com(2)
@@ -167,10 +167,13 @@ subroutine ecrire(t, w, k, M, Ma, Cs, param_com, param_geom, ycom, dycomdt)
                 0.5d0*M*(dycomdt+w(2))**2 , & !Ec(t)-Ec(0)
                 0.5d0*Ma*(dycomdt+w(2))**2, &  !Ec Masse ajoutée
                 0.5d0*k*w(1)**2, & !Energie potentielle élastique
-                Cs*(dycomdt+w(2))**2*(w(1)+ycom) + 0.5d0*M*param_com(2)  ! Travail opérateur pour vitesse constante 
+                Cs*(dycomdt+w(2))**2*(w(1)+ycom) + 0.5d0*M*param_com(2) !Travail opérateur pour vitesse constante 
     w0 = 0.d0
     zeta = 0.d0
     call carac_oscil(w, k, M, Ma, Cs, param_com, param_geom, w0, zeta)
 
-    write(12,*) t, w0, zeta
+    write(12,*) t*param_com(2)*(RHO/M)**(1.d0/3.d0), &
+                w0, &
+                zeta
+
 end subroutine ecrire

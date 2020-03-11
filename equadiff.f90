@@ -70,7 +70,7 @@ subroutine f_equa(t, w, wp)
     Cs = slamming_coef(t, y, param_geom)
 
     wp(1) = w(2)
-    wp(2) = -1/(M+Ma) * (Cs * dydt**2 + k*w(1)) - d2ycomdt2
+    wp(2) = -1/(M+Ma) * (-Cs * dydt**2 + k*w(1)) - d2ycomdt2
 end subroutine f_equa
 
 subroutine f_equa_no_k(t, w, wp)
@@ -117,7 +117,7 @@ subroutine f_equa_no_k(t, w, wp)
     Cs = slamming_coef(t, w(1), param_geom)
 
     wp(1) = w(2)
-    wp(2) = -1/(M+Ma) * (Cs * w(2)**2) - d2ycomdt2
+    wp(2) = -1/(M+Ma) * (-Cs * w(2)**2) - d2ycomdt2
 end subroutine f_equa_no_k
 
 function added_mass(t, y, param_c)
@@ -150,9 +150,9 @@ function slamming_coef(t, y, param_c)
     real(kind=8) :: slamming_coef
 
     if (param_c(1) == 0.d0) then !dièdre
-        slamming_coef = RHO * PI**3 * y / (4 * tan(param_c(2))**2)
+        slamming_coef = - RHO * PI**3 * y / (4 * tan(param_c(2))**2)
     else if (param_c(1) == 1.d0) then !parabole
-        slamming_coef = - 2.d0 * RHO * PI * param_c(2)
+        slamming_coef = 2.d0 * RHO * PI * param_c(2)
     else
         print*, 'Coefficient de slamming non défini'
         stop

@@ -10,7 +10,8 @@ program Resolution_equadiff
     ! w0 : solution au pas de temps actuel
     ! w : solution au prochain pas de temps
     real(kind=8), dimension(2) :: w0, w, wp
-    real(kind=8), dimension(2) :: param_com, param_geom
+    real(kind=8), dimension(2) :: param_geom
+    real(kind=8), dimension(3) :: param_com
     real(kind=8) :: Ma, Cs, added_mass, slamming_coef
     real(kind=8) :: M, k
     integer(kind=4) :: i, nstep, schema, flag,neqn
@@ -33,6 +34,7 @@ program Resolution_equadiff
     read(2,*) k
     read(2,*) param_com(1)
     read(2,*) param_com(2)
+    read(2,*) param_com(3)
     read(2,*) param_geom(1)
     read(2,*) param_geom(2)
     close(2)
@@ -131,7 +133,8 @@ subroutine carac_oscil(w, k, M, Ma, Cs, param_com, param_geom, w0, zeta)
     real(kind=8), parameter :: RHO = 999.d0
     real(kind=8), parameter :: PI = 4.d0*atan(1.d0)
     real(kind=8), intent(in) :: k, M, Ma, Cs
-    real(kind=8), dimension(2), intent(in) :: w, param_com, param_geom
+    real(kind=8), dimension(2), intent(in) :: w, param_geom
+    real(kind=8), dimension(3), intent(in) :: param_com
     real(kind=8) :: dCsdw
     real(kind=8), intent(out) :: w0, zeta
 
@@ -144,15 +147,16 @@ subroutine carac_oscil(w, k, M, Ma, Cs, param_com, param_geom, w0, zeta)
         stop
     end if
 
-    w0 = sqrt( (k+dCsdw*param_com(2)**2) / (M+Ma) )
-    zeta = - (Cs*param_com(2)) / (M+Ma) / w0
+    w0 = sqrt( (k - dCsdw*param_com(2)**2) / (M+Ma) )
+    zeta = (Cs*param_com(2)) / (M+Ma) / w0
 end subroutine carac_oscil
 
 subroutine ecrire(t, w, k, M, Ma, Cs, param_com, param_geom, ycom, dycomdt)
     implicit none
     real(kind=8), parameter :: RHO = 999.d0
     real(kind=8), intent(in) :: t, k, M, Ma, Cs, ycom, dycomdt
-    real(kind=8), dimension(2), intent(in) :: w, param_com, param_geom
+    real(kind=8), dimension(2), intent(in) :: w, param_geom
+    real(kind=8), dimension(3), intent(in) :: param_com
     external :: carac_oscil
     real(kind=8) :: w0, zeta
 
@@ -167,7 +171,7 @@ subroutine ecrire(t, w, k, M, Ma, Cs, param_com, param_geom, ycom, dycomdt)
                 0.5d0*M*(dycomdt+w(2))**2 , & !Ec(t)-Ec(0)
                 0.5d0*Ma*(dycomdt+w(2))**2, &  !Ec Masse ajoutée
                 0.5d0*k*w(1)**2, & !Energie potentielle élastique
-                Cs*(dycomdt+w(2))**2*(w(1)+ycom) + 0.5d0*M*param_com(2) !Travail opérateur pour vitesse constante 
+                -Cs*(dycomdt+w(2))**2*(w(1)+ycom) + 0.5d0*M*param_com(2) !Travail opérateur pour vitesse constante 
     w0 = 0.d0
     zeta = 0.d0
     call carac_oscil(w, k, M, Ma, Cs, param_com, param_geom, w0, zeta)

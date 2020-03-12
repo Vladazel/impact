@@ -39,7 +39,8 @@ subroutine f_equa(t, w, wp)
     real(kind=8), dimension(2), intent(out) :: wp
     !Paramètres de la simulation
     real(kind=8) :: M, k
-    real(kind=8), dimension(2) :: param_geom, param_com
+    real(kind=8), dimension(2) :: param_geom
+    real(kind=8), dimension(3) :: param_com
     !Variables de calcul
     real(kind=8) :: ycom, y, dycomdt, dydt, d2ycomdt2
     real(kind=8) :: Ma, Cs, added_mass, slamming_coef
@@ -48,10 +49,11 @@ subroutine f_equa(t, w, wp)
     open(unit = 4, file = './param_phy.inp', status = 'old')
     read(4,*) M !masse 
     read(4,*) k !raideur 
-    read(4,*) param_com(1) 
-    read(4,*) param_com(2)
-    read(4,*) param_geom(1)
-    read(4,*) param_geom(2)
+    read(4,*) param_com(1) !type de commande
+    read(4,*) param_com(2) !vitesse initiale
+    read(4,*) param_com(3) !accélération
+    read(4,*) param_geom(1) !type de géométrie (parabole ou dièdre)
+    read(4,*) param_geom(2) !paramètre géomètrique (rayon de courbure ou angle) 
     close(4)
     
     !Calcul des dérivées successives de y_com
@@ -86,7 +88,8 @@ subroutine f_equa_no_k(t, w, wp)
     real(kind=8), dimension(2), intent(out) :: wp
     !Paramètres de la simulation
     real(kind=8) :: M
-    real(kind=8), dimension(2) :: param_geom, param_com
+    real(kind=8), dimension(2) :: param_geom
+    real(kind=8), dimension(3) :: param_com
     !Variables de calcul
     real(kind=8) :: ycom, y, dycomdt, dydt, d2ycomdt2
     real(kind=8) :: Ma, Cs, added_mass, slamming_coef
@@ -95,10 +98,11 @@ subroutine f_equa_no_k(t, w, wp)
     open(unit = 4, file = './param_phy.inp', status = 'old')
     read(4,*) M !masse 
     read(4,*)  !raideur 
-    read(4,*) param_com(1) 
-    read(4,*) param_com(2)
-    read(4,*) param_geom(1)
-    read(4,*) param_geom(2)
+    read(4,*) param_com(1) !type de commande
+    read(4,*) param_com(2) !vitesse initiale
+    read(4,*) param_com(3) !accélération
+    read(4,*) param_geom(1) !type de géométrie
+    read(4,*) param_geom(2) !paramètre géométrique 
     close(4)
     
     !Calcul des dérivées successives de y_com
@@ -165,7 +169,7 @@ subroutine y_commande(t, ycom, dycomdt, d2ycomdt2, list_param)
     !1ere valeur de list_param indique le type de loi de commande
     !0 pour vitesse constante
     real(kind=8), intent(in) :: t
-    real(kind=8), dimension(2), intent(in) :: list_param
+    real(kind=8), dimension(3), intent(in) :: list_param
     real(kind=8), intent(out) :: ycom, dycomdt, d2ycomdt2
 
     if(list_param(1) == 0) then    
@@ -173,6 +177,12 @@ subroutine y_commande(t, ycom, dycomdt, d2ycomdt2, list_param)
         ycom = -list_param(2) * t 
         dycomdt = -list_param(2)
         d2ycomdt2 = 0
+        
+    else if(list_param(1) == 1  ) then
+        !Loi commande accélération constante
+        ycom = -list_param(3) * t**2/2.d0 - list_param(2)
+        dycomdt = -list_param(3) * t - list_param(2)
+        d2ycomdt2 = -list_param(3)
     else
         print*, 'Commande non définie'
         stop
